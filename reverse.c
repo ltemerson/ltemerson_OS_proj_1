@@ -19,32 +19,47 @@ void printList(struct Node* head) {
 
 int main(int argc, char *argv[])
 {
-	FILE *file;
+	FILE *file1;
+	FILE *file2
 	char *line = NULL;
 	size_t len = 0;
 	ssize_t read;
-	struct Node* head = (struct Node*) malloc(sizeof(struct Node));
-	head->next = NULL;
-
-	if ((file = fopen(argv[1],"r")) == NULL) {
-		printf("Error!\n");
+	
+	if (argc<2 || argc>3) {
+		fprintf(stderr, "usage: reverse <input> <output>\n");
 		return(1);
 	}
+	
 
-	while ((read = getline(&line, &len, file)) != -1) {
-		printf("Retrieved line of length %zd:\n", read);
-		fwrite(line, read, 1, stdout);
+	if ((file1 = fopen(argv[1],"r")) == NULL) {
+		fprintf(stderr, "error: cannot open file '%s'\n",argv[1]);
+		return(1);
+	}
+	
+	struct Node* head = (struct Node*) malloc(sizeof(struct Node));
+	if(head == NULL) {
+		fprintf(stderr,"error: malloc failed\n");
+		return(1);
+	}
+		
+	head->next = NULL;
+	
+	while ((read = getline(&line, &len, file1)) != -1) {
 		head->data=line;
 		struct Node* new_node = (struct Node*) malloc(sizeof(struct Node));
+		if(new_node == NULL) {
+			fprintf(stderr,"error: malloc failed\n");
+			return(1);
+		}
 		new_node->next = head;
 
 		head = new_node;
 
 		line = NULL;
-		
 	}
 
 	struct Node* curr;
+	
 	curr = head;
 	head = head->next;
 
@@ -60,6 +75,7 @@ int main(int argc, char *argv[])
 		}
 		free(curr);
 	}
+
 	free(head);
 	fclose(file);
 	free(line);
